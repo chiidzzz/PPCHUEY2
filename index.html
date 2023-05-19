@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PPC Huey2</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>PPC HUEYII</h1>
+      <h5>Revised March 2023</h5>
+      <h6>(BHT PUB-92-004-10 /REVISION 10 — 21 AUGUST 2017)</h6>
+    </header>
+    <div id="app">
+      <div>
+        <label for="aircraftNumber">Aircraft number:</label>
+        <select v-model="selectedAircraft" @change="updateBasicWeight">
+          <option value="">Select</option>
+          <option value="L1201">L1201</option>
+          <option value="L1202">L1202</option>
+          <option value="L1203">L1203</option>
+          <option value="L1204">L1204</option>
+          <option value="L1205">L1205</option>
+          <option value="L1206">L1206</option>
+          <option value="L1207">L1207</option>
+          <option value="L1208">L1208</option>
+          <option value="L1209">L1209</option>
+          <option value="L1210">L1210</option>
+          <option value="L1211">L1211</option>
+          <option value="L1212">L1212</option>
+          <option value="L1214">L1214</option>
+          <option value="L1215">L1215</option>
+          <option value="L1216">L1216</option>
+        </select>
+      </div>
+      <div>
+        <label for="basicWeight">A/C basic weight: (lbs.)</label>
+        <p>{{ basicWeight }}</p>
+      </div>
+      <div>
+        <label for="fuel">Fuel: (lbs.)</label>
+        <input type="text" v-model="fuel" @change="validateFuel" />
+      </div>
+      <div v-if="fuelErrorMessage" class="error-message">
+        <p>{{ fuelErrorMessage }}</p>
+      </div>
+      <div>
+        <label for="load">Load:</label>
+        <input type="number" v-model="load" />
+        <select v-model="loadUnit">
+          <option value="lbs">lbs</option>
+          <option value="kg">kg</option>
+        </select>
+      </div>
+      <div>
+        <label for="takeoffGW">Take Off GW: (lbs.)</label>
+        <p>{{ takeoffGW }}</p>
+      </div>
+      <div>
+        <label for="qnh">QNH:</label>
+        <input type="number" v-model="qnh" />
+        <select v-model="qnhUnit">
+          <option value="hPa">hPa</option>
+          <option value="inHg">inHg</option>
+        </select>
+      </div>
+      <div>
+        <label for="fat">FAT: (°C)</label>
+        <input type="number" v-model="fat" />
+      </div>
+      <div>
+        <label for="indicatedAltitude">Indicated Altitude: (ft.)</label>
+        <input type="number" v-model="indicatedAltitude" />
+      </div>
+      <div>
+        <label for="pressureAltitude">Pressure Altitude: (ft.)</label>
+        <p>{{ pressureAltitude }}</p>
+      </div>
+      <div>
+        <label for="densityAltitude">Density Altitude: (ft.)</label>
+        <p>{{ densityAltitude }}</p>
+      </div>
+      <div class="column">
+        <div>
+          <label for="maxTQ">Max TQ Available (Fig 7-2):</label>
+          <input type="number" v-model="maxTQ" />
+        </div>
+        <div>
+          <label for="predictedHoverTQ2ft"
+            >Predicted hover TQ 2 ft. (Fig 7-3):</label
+          >
+          <input type="number" v-model="predictedHoverTQ2ft" />
+        </div>
+        <div>
+          <label for="predictedHoverTQ4ft"
+            >Predicted hover TQ 4 ft. (Fig 7-3):</label
+          >
+          <input type="number" v-model="predictedHoverTQ4ft" />
+        </div>
+        <div>
+          <label for="predictedHoverTQ30ft"
+            >Predicted hover TQ 30 ft. (Fig 7-3):</label
+          >
+          <input type="number" v-model="predictedHoverTQ30ft" />
+        </div>
+        <div>
+          <label for="predictedHoverTQ100ft"
+            >Predicted hover TQ 100 ft. (Fig 7-3):</label
+          >
+          <input type="number" v-model="predictedHoverTQ100ft" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
