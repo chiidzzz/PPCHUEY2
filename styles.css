@@ -12,8 +12,8 @@ body {
 
 header {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
-  padding: 1rem;
-  background-color: #1f0166;
+  /* padding: 1rem; */
+  background-color: #4b5320;
   color: white;
   text-align: left;
   margin-bottom: 1rem;
@@ -35,18 +35,25 @@ p {
   margin: 0;
   padding: 0;
 }
+
 input {
   display: inline-block;
 }
 
+.blue {
+  font-weight: bold;
+  color: #1f0166;
+}
+
 .column {
-  margin: 1;
+  margin: 0;
   display: inline-block;
-  vertical-align: left;
+  vertical-align: top;
   margin-left: 0rem;
   font-weight: bold;
   color: #1f0166;
 }
+
 .error-message {
   color: red;
   font-weight: bold;

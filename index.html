@@ -42,7 +42,7 @@
       </div>
       <div>
         <label for="basicWeight">A/C basic weight: (lbs.)</label>
-        <p>{{ basicWeight }}</p>
+        <p class="blue">{{ basicWeight }}</p>
       </div>
       <div>
         <label for="fuel">Fuel: (lbs.)</label>
@@ -61,7 +61,7 @@
       </div>
       <div>
         <label for="takeoffGW">Take Off GW: (lbs.)</label>
-        <p>{{ takeoffGW }}</p>
+        <p class="blue">{{ takeoffGW }}</p>
       </div>
       <div>
         <label for="qnh">QNH:</label>
@@ -77,20 +77,24 @@
       </div>
       <div>
         <label for="indicatedAltitude">Indicated Altitude: (ft.)</label>
-        <input type="number" v-model="indicatedAltitude" />
+        <input
+          type="number"
+          v-model="indicatedAltitude"
+          @input="limitIndicatedAltitude"
+        />
       </div>
       <div>
         <label for="pressureAltitude">Pressure Altitude: (ft.)</label>
-        <p>{{ pressureAltitude }}</p>
+        <p class="blue">{{ pressureAltitude }}</p>
       </div>
       <div>
         <label for="densityAltitude">Density Altitude: (ft.)</label>
-        <p>{{ densityAltitude }}</p>
+        <p class="blue">{{ densityAltitude }}</p>
       </div>
       <div class="column">
         <div>
           <label for="maxTQ">Max TQ Available (Fig 7-2):</label>
-          <input type="number" v-model="maxTQ" />
+          <p class="blue">{{ maxTQ }}</p>
         </div>
         <div>
           <label for="predictedHoverTQ2ft"
