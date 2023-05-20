@@ -20,25 +20,29 @@
     </header>
     <div id="app">
       <div>
-        <label for="aircraftNumber">Aircraft number:</label>
-        <select v-model="selectedAircraft" @change="updateBasicWeight">
-          <option value="">Select</option>
-          <option value="L1201">L1201</option>
-          <option value="L1202">L1202</option>
-          <option value="L1203">L1203</option>
-          <option value="L1204">L1204</option>
-          <option value="L1205">L1205</option>
-          <option value="L1206">L1206</option>
-          <option value="L1207">L1207</option>
-          <option value="L1208">L1208</option>
-          <option value="L1209">L1209</option>
-          <option value="L1210">L1210</option>
-          <option value="L1211">L1211</option>
-          <option value="L1212">L1212</option>
-          <option value="L1214">L1214</option>
-          <option value="L1215">L1215</option>
-          <option value="L1216">L1216</option>
-        </select>
+        <label for="aircraftNumber" id="aircraftNumber-label"
+          >Aircraft number:</label
+        >
+        <div class="input-wrapper">
+          <select v-model="selectedAircraft" @change="updateBasicWeight">
+            <option value="">Select</option>
+            <option value="L1201">L1201</option>
+            <option value="L1202">L1202</option>
+            <option value="L1203">L1203</option>
+            <option value="L1204">L1204</option>
+            <option value="L1205">L1205</option>
+            <option value="L1206">L1206</option>
+            <option value="L1207">L1207</option>
+            <option value="L1208">L1208</option>
+            <option value="L1209">L1209</option>
+            <option value="L1210">L1210</option>
+            <option value="L1211">L1211</option>
+            <option value="L1212">L1212</option>
+            <option value="L1214">L1214</option>
+            <option value="L1215">L1215</option>
+            <option value="L1216">L1216</option>
+          </select>
+        </div>
       </div>
       <div>
         <label for="basicWeight">A/C basic weight: (lbs.)</label>

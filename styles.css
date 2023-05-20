@@ -28,7 +28,17 @@ section {
 label {
   display: inline-block;
   text-align: left;
-  width: 18rem;
+  /* width: 18rem; */
+}
+
+.input-wrapper {
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+#aircraftNumber-label {
+  display: inline-block;
+  width: 7rem;
 }
 
 p {
@@ -38,11 +48,17 @@ p {
 
 input {
   display: inline-block;
+  margin-left: 0.5rem;
+  max-width: 4rem;
 }
 
 .blue {
   font-weight: bold;
   color: #1f0166;
+  display: inline-block;
+  text-align: left;
+  margin-left: 0.5rem;
+  font-style: normal;
 }
 
 .column {
@@ -50,8 +66,8 @@ input {
   display: inline-block;
   vertical-align: top;
   margin-left: 0rem;
-  font-weight: bold;
-  color: #1f0166;
+  font-style: italic;
+  padding-top: 1rem;
 }
 
 .error-message {
