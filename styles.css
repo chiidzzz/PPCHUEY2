@@ -38,7 +38,7 @@ label {
 
 #aircraftNumber-label {
   display: inline-block;
-  width: 7rem;
+  width: 9rem;
 }
 
 p {
@@ -77,4 +77,5 @@ input {
 
 #app {
   margin-left: 1rem;
+  font-size: larger;
 }

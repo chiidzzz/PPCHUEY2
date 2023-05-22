@@ -14,8 +14,8 @@
   </head>
   <body>
     <header>
-      <h1>PPC HUEYII</h1>
-      <h5>Revised March 2023</h5>
+      <h2>PPC HUEYII</h1>
+      <h5>Revised May 2023</h5>
       <h6>(BHT PUB-92-004-10 /REVISION 10 — 21 AUGUST 2017)</h6>
     </header>
     <div id="app">
@@ -50,14 +50,14 @@
       </div>
       <div>
         <label for="fuel">Fuel: (lbs.)</label>
-        <input type="text" v-model="fuel" @change="validateFuel" />
+        <input type="number" v-model="fuel" @input="validateFuel" />
       </div>
       <div v-if="fuelErrorMessage" class="error-message">
         <p>{{ fuelErrorMessage }}</p>
       </div>
       <div>
         <label for="load">Load:</label>
-        <input type="number" v-model="load" />
+        <input type="number" v-model="load" @input="validateTOGW" />
         <select v-model="loadUnit">
           <option value="lbs">lbs</option>
           <option value="kg">kg</option>
@@ -66,6 +66,9 @@
       <div>
         <label for="takeoffGW">Take Off GW: (lbs.)</label>
         <p class="blue">{{ takeoffGW }}</p>
+      </div>
+      <div v-if="TOGWErrorMessage" class="error-message">
+        <p>{{ TOGWErrorMessage }}</p>
       </div>
       <div>
         <label for="qnh">QNH:</label>
@@ -77,8 +80,11 @@
       </div>
       <div>
         <label for="fat">FAT: (°C)</label>
-        <input type="number" v-model="fat" />
+        <input type="number" v-model="fat" @input="validateTemperature"/>
       </div>
+              <div v-if="TempErrorMessage" class="error-message">
+        <p>{{ TempErrorMessage }}</p>
+        </div>
       <div>
         <label for="indicatedAltitude">Indicated Altitude: (ft.)</label>
         <input
@@ -87,6 +93,9 @@
           @input="limitIndicatedAltitude"
         />
       </div>
+        <div v-if="IAErrorMessage" class="error-message">
+        <p>{{ IAErrorMessage }}</p>
+        </div>
       <div>
         <label for="pressureAltitude">Pressure Altitude: (ft.)</label>
         <p class="blue">{{ pressureAltitude }}</p>
@@ -104,25 +113,25 @@
           <label for="predictedHoverTQ2ft"
             >Predicted hover TQ 2 ft. (Fig 7-3):</label
           >
-          <input type="number" v-model="predictedHoverTQ2ft" />
+          <p class="blue">{{ predictedHoverTQ2ft }}</p>
         </div>
         <div>
           <label for="predictedHoverTQ4ft"
             >Predicted hover TQ 4 ft. (Fig 7-3):</label
           >
-          <input type="number" v-model="predictedHoverTQ4ft" />
+          <p class="blue">{{ predictedHoverTQ4ft }}</p>
         </div>
         <div>
           <label for="predictedHoverTQ30ft"
             >Predicted hover TQ 30 ft. (Fig 7-3):</label
           >
-          <input type="number" v-model="predictedHoverTQ30ft" />
+          <p class="blue">{{ predictedHoverTQ30ft }}</p>
         </div>
         <div>
           <label for="predictedHoverTQ100ft"
             >Predicted hover TQ 100 ft. (Fig 7-3):</label
           >
-          <input type="number" v-model="predictedHoverTQ100ft" />
+          <p class="blue">{{ predictedHoverTQ100ft }}</p>
         </div>
       </div>
     </div>
