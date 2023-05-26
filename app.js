@@ -519,7 +519,7 @@ const app = Vue.createApp({
     },
     setFirefightingLoad(bucketPercentage) {
       this.resetForm();
-      this.load = bucketPercentage === 70 ? 3070 : 4070;
+      this.load = bucketPercentage === 70 ? 3239 : 4239;
       this.loadUnit = "lbs";
       this.calculateTakeoffGW();
       this.showFirefightingText = true;
