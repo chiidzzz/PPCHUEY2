@@ -7,16 +7,32 @@ html {
 }
 
 body {
-  margin: 0;
+  margin-top: 1px;
 }
 
 header {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
-  /* padding: 1rem; */
+  padding: 0.5rem;
   background-color: #4b5320;
   color: white;
   text-align: left;
+  margin-top: 0;
   margin-bottom: 1rem;
+}
+
+header h2,
+header h5,
+header h6,
+header p {
+  margin-left: 1rem; /* Adjust the left margin as needed */
+}
+
+header h5 {
+  margin-bottom: 0;
+}
+
+header h6 {
+  margin-top: 0;
 }
 
 section {
