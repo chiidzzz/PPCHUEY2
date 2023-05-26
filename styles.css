@@ -61,6 +61,18 @@ input {
   font-style: normal;
 }
 
+.red {
+  color: red;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.blue {
+  color: blue;
+}
+
 .column {
   margin: 0;
   display: inline-block;
@@ -73,6 +85,82 @@ input {
 .error-message {
   color: red;
   font-weight: bold;
+}
+
+.reset-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.reset-button-container button {
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  flex-basis: calc(33.33% - 5px);
+}
+
+.dropdown {
+  position: relative;
+  /* display: inline-block; */
+}
+
+.dropdown-toggle {
+  background-color: #4b5320;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  position: absolute;
+  top: -10px; /* Adjust the top value based on your header height */
+  right: 10px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  padding: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: none;
+}
+
+.firefighting-info {
+  color: #4b5320;
+  font-size: smaller;
+  font-style: italic;
+  border: 2px solid #4b5320;
+  margin-top: 0.5rem;
+}
+
+.fire-button {
+  background-color: #f25b00;
+  color: #fff;
+  background-image: linear-gradient(45deg, #ff7733 0%, #f25b00 100%);
+  background-size: 200% auto;
+  transition: background-position 0.5s;
+}
+
+.fire-button:hover {
+  background-position: -100% center;
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown-menu button:hover {
+  background-color: #f2f2f2;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
 }
 
 #app {

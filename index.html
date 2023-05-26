@@ -19,6 +19,14 @@
       <h6>(BHT PUB-92-004-10 /REVISION 10 — 21 AUGUST 2017)</h6>
     </header>
     <div id="app">
+  <div class="dropdown" @click="toggleDropdown">
+    <button class="dropdown-toggle fire-button">Firefighting</button>
+    <div v-if="showDropdown" class="dropdown-menu">
+      <button @click="setFirefightingLoad(70)">70% bucket</button>
+      <button @click="setFirefightingLoad(100)">100% bucket</button>
+    </div>
+  </div>
+      
       <div>
         <label for="aircraftNumber" id="aircraftNumber-label"
           >Aircraft number:</label
@@ -50,15 +58,15 @@
       </div>
       <div>
         <label for="fuel">Fuel: (lbs.)</label>
-        <input type="number" v-model="fuel" @input="validateFuel" />
+        <input type="number" v-model="fuel" @input="validateFuel()" />
       </div>
       <div v-if="fuelErrorMessage" class="error-message">
         <p>{{ fuelErrorMessage }}</p>
       </div>
       <div>
         <label for="load">Load:</label>
-        <input type="number" v-model="load" @input="validateTOGW" />
-        <select v-model="loadUnit">
+        <input type="number" v-model="load" @input="calculateTakeoffGW()" />
+        <select v-model="loadUnit" @change="calculateTakeoffGW()">
           <option value="lbs">lbs</option>
           <option value="kg">kg</option>
         </select>
@@ -72,15 +80,15 @@
       </div>
       <div>
         <label for="qnh">QNH:</label>
-        <input type="number" v-model="qnh" />
-        <select v-model="qnhUnit">
+        <input type="number" v-model="qnh" @input="limitIndicatedAltitude()"/>
+        <select v-model="qnhUnit" @change="limitIndicatedAltitude()">
           <option value="hPa">hPa</option>
           <option value="inHg">inHg</option>
         </select>
       </div>
       <div>
         <label for="fat">FAT: (°C)</label>
-        <input type="number" v-model="fat" @input="validateTemperature"/>
+        <input type="number" v-model="fat" @input="validateTemperature(fat)"/>
       </div>
               <div v-if="TempErrorMessage" class="error-message">
         <p>{{ TempErrorMessage }}</p>
@@ -90,7 +98,7 @@
         <input
           type="number"
           v-model="indicatedAltitude"
-          @input="limitIndicatedAltitude"
+          @input="limitIndicatedAltitude()"
         />
       </div>
         <div v-if="IAErrorMessage" class="error-message">
@@ -113,27 +121,39 @@
           <label for="predictedHoverTQ2ft"
             >Predicted hover TQ 2 ft. (Fig 7-3):</label
           >
-          <p class="blue">{{ predictedHoverTQ2ft }}</p>
+          <p :class="{'red': predictedHoverTQ2ft > 100}" class="blue">{{ predictedHoverTQ2ft }}</p>
         </div>
         <div>
           <label for="predictedHoverTQ4ft"
             >Predicted hover TQ 4 ft. (Fig 7-3):</label
           >
-          <p class="blue">{{ predictedHoverTQ4ft }}</p>
+          <p :class="{'red': predictedHoverTQ4ft > 100}" class="blue">{{ predictedHoverTQ4ft }}</p>
         </div>
         <div>
           <label for="predictedHoverTQ30ft"
             >Predicted hover TQ 30 ft. (Fig 7-3):</label
           >
-          <p class="blue">{{ predictedHoverTQ30ft }}</p>
+          <p :class="{'red': predictedHoverTQ30ft > 100}" class="blue">{{ predictedHoverTQ30ft }}</p>
         </div>
         <div>
           <label for="predictedHoverTQ100ft"
             >Predicted hover TQ 100 ft. (Fig 7-3):</label
           >
-          <p class="blue">{{ predictedHoverTQ100ft }}</p>
+          <p :class="{'red': predictedHoverTQ100ft > 100}" class="blue">{{ predictedHoverTQ100ft }}</p>
         </div>
       </div>
+      <div class="reset-button-container">
+      <label>&nbsp;</label>
+      <button @click="resetForm">Reset</button>
     </div>
+      <div v-show="showFirefightingText" class="firefighting-info">
+        <p>Bambi bucket empty weight: 167 lbs.</p>
+        <p v-if="bucketPercentage === 70" >70% Bambi capacity = 2500 lbs.</p>
+        <p v-if="bucketPercentage === 100" >100% Bambi capacity = 3500 lbs.</p>
+        <p>Control head weight = 17.6 lbs.</p>
+        <p>Cockpit doors Removed = -2x23 = -46 lbs.</p>
+        <p>Crew of 3 = x200 = 600 lbs.</p>
+      </div>
+    </div>    
   </body>
 </html>

@@ -19,6 +19,9 @@ const app = Vue.createApp({
         L1215: 5740,
         L1216: 5756,
       },
+      bucketPercentage: null,
+      showDropdown: false,
+      showFirefightingText: false,
       fuelErrorMessage: "",
       TOGWErrorMessage: "",
       basicWeight: null,
@@ -42,93 +45,24 @@ const app = Vue.createApp({
       predictedHoverTQ100ft: null,
     };
   },
-  watch: {
-    selectedAircraft() {
-      this.calculateTakeoffGW();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-    },
-    fuel() {
-      this.calculateTakeoffGW();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-      // this.validateFuel();
-    },
-    load() {
-      this.calculateTakeoffGW();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-    },
-    loadUnit() {
-      this.calculateTakeoffGW();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-    },
-    qnh() {
-      this.calculatePressureAltitude();
-      this.calculateDensityAltitude();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-    },
-    qnhUnit() {
-      this.calculatePressureAltitude();
-      this.calculateDensityAltitude();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-    },
-    fat() {
-      this.calculatePressureAltitude();
-      this.calculateDensityAltitude();
-      this.calculateMaxTQ();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-    },
-    indicatedAltitude() {
-      this.calculatePressureAltitude();
-      this.calculateDensityAltitude();
-      this.calculateMaxTQ();
-      this.calculatePredictedHoverTQ2ft();
-      this.calculatePredictedHoverTQ4ft();
-      this.calculatePredictedHoverTQ100ft();
-      this.calculatePredictedHoverTQ15ft();
-      this.calculatePredictedHoverTQ30ft();
-    },
-  },
+  watch: {},
   methods: {
     updateBasicWeight() {
       this.basicWeight = this.aircraftWeights[this.selectedAircraft] || "";
+      this.calculateTakeoffGW();
     },
     validateFuel() {
       const fuelValue = parseFloat(this.fuel);
       if (isNaN(fuelValue) || fuelValue < 200 || fuelValue > 1450) {
         this.fuelErrorMessage = "Check fuel between 200 and 1450 lbs.";
+        this.calculateTakeoffGW();
         this.maxTQ = 0;
         this.predictedHoverTQ2ft = null;
         this.predictedHoverTQ4ft = null;
         this.predictedHoverTQ30ft = null;
         this.predictedHoverTQ100ft = null;
       } else {
+        this.calculateTakeoffGW();
         this.fuelErrorMessage = "";
       }
     },
@@ -136,12 +70,20 @@ const app = Vue.createApp({
       const TOGWValue = parseFloat(this.takeoffGW);
       if (isNaN(TOGWValue) || TOGWValue < 7500 || TOGWValue > 11200) {
         this.TOGWErrorMessage = "Check TO/GW between 7500 and 11200 lbs.";
+        // this.takeoffGW = 0;
         this.maxTQ = 0;
         this.predictedHoverTQ2ft = 0;
         this.predictedHoverTQ4ft = 0;
         this.predictedHoverTQ30ft = 0;
         this.predictedHoverTQ100ft = 0;
       } else {
+        this.calculateMaxTQ();
+        this.calculateDensityAltitude();
+        this.calculatePredictedHoverTQ2ft();
+        this.calculatePredictedHoverTQ4ft();
+        this.calculatePredictedHoverTQ100ft();
+        this.calculatePredictedHoverTQ15ft();
+        this.calculatePredictedHoverTQ30ft();
         this.TOGWErrorMessage = "";
       }
     },
@@ -155,6 +97,13 @@ const app = Vue.createApp({
         this.predictedHoverTQ30ft = 0;
         this.predictedHoverTQ100ft = 0;
       } else {
+        this.calculateMaxTQ();
+        this.calculateDensityAltitude();
+        this.calculatePredictedHoverTQ2ft();
+        this.calculatePredictedHoverTQ4ft();
+        this.calculatePredictedHoverTQ100ft();
+        this.calculatePredictedHoverTQ15ft();
+        this.calculatePredictedHoverTQ30ft();
         this.TempErrorMessage = "";
       }
     },
@@ -166,7 +115,7 @@ const app = Vue.createApp({
 
       this.takeoffGW = (basicWeightLbs + loadLbs + fuelLbs).toFixed(0);
       this.unroundedTakeoffGW = basicWeightLbs + loadLbs + fuelLbs;
-      this.validateFuel();
+      // this.validateFuel();
       this.validateTOGW();
     },
     limitIndicatedAltitude(event) {
@@ -178,22 +127,23 @@ const app = Vue.createApp({
       ) {
         this.IAErrorMessage =
           "Check Indicated Altitude between 0 and 14000 ft.";
-        // this.maxTQ = null;
         this.maxTQ = 0;
         this.predictedHoverTQ2ft = 0;
         this.predictedHoverTQ4ft = 0;
         this.predictedHoverTQ30ft = 0;
         this.predictedHoverTQ100ft = 0;
       } else {
+        this.calculatePressureAltitude();
+        this.calculateDensityAltitude();
+        this.calculateMaxTQ();
+        this.calculateDensityAltitude();
+        this.calculatePredictedHoverTQ2ft();
+        this.calculatePredictedHoverTQ4ft();
+        this.calculatePredictedHoverTQ100ft();
+        this.calculatePredictedHoverTQ15ft();
+        this.calculatePredictedHoverTQ30ft();
         this.IAErrorMessage = "";
       }
-      // if (this.indicatedAltitude < 0) {
-      //   alert("Check Indicated Altitude between 0 and 14000!");
-      //   this.indicatedAltitude = 0;
-      // } else if (this.indicatedAltitude > 14000) {
-      //   alert("Check Indicated Altitude between 0 and 14000!");
-      //   this.indicatedAltitude = 14000;
-      // }
     },
     calculatePressureAltitude() {
       const indicatedAltitudeValue = parseFloat(this.indicatedAltitude);
@@ -538,6 +488,43 @@ const app = Vue.createApp({
       } else {
         this.predictedHoverTQ30ft = null;
       }
+    },
+    resetForm() {
+      this.showFirefightingText = false;
+      this.selectedAircraft = "";
+      this.fuelErrorMessage = "";
+      this.TOGWErrorMessage = "";
+      this.basicWeight = null;
+      this.fuel = 1400;
+      this.load = 600;
+      this.loadUnit = "lbs";
+      this.takeoffGW = null;
+      this.unroundedTakeoffGW = 0.0;
+      this.qnh = 29.92;
+      this.qnhUnit = "inHg";
+      this.fat = 20;
+      this.TempErrorMessage = "";
+      this.indicatedAltitude = null;
+      this.IAErrorMessage = "";
+      this.pressureAltitude = null;
+      this.densityAltitude = null;
+      this.maxTQ = null;
+      this.predictedHoverTQ2ft = null;
+      this.predictedHoverTQ4ft = null;
+      this.predictedHoverTQ30ft = null;
+      this.predictedHoverTQ100ft = null;
+    },
+    toggleDropdown() {
+      this.showDropdown = !this.showDropdown;
+    },
+    setFirefightingLoad(bucketPercentage) {
+      this.resetForm();
+      this.load = bucketPercentage === 70 ? 3070 : 4070;
+      this.loadUnit = "lbs";
+      this.calculateTakeoffGW();
+      this.showFirefightingText = true;
+      this.showDropdown = false;
+      this.bucketPercentage = bucketPercentage;
     },
   },
   computed: {},
