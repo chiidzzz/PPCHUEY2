@@ -22,8 +22,8 @@
   <div class="dropdown" @click="toggleDropdown">
     <button class="dropdown-toggle fire-button">Firefighting</button>
     <div v-if="showDropdown" class="dropdown-menu">
-      <button @click="setFirefightingLoad(70)">70% bucket</button>
-      <button @click="setFirefightingLoad(100)">100% bucket</button>
+    <button @click="setFirefightingLoad(70); toggleDropdown()">70% bucket</button>
+    <button @click="setFirefightingLoad(100); toggleDropdown()">100% bucket</button>
     </div>
   </div>
       
@@ -118,9 +118,7 @@
           <p class="blue">{{ maxTQ }}</p>
         </div>
         <div>
-          <label for="predictedHoverTQ2ft"
-            >Predicted hover TQ 2 ft. (Fig 7-3):</label
-          >
+          <label for="predictedHoverTQ2ft">Predicted hover TQ 2 ft. (Fig 7-3):</label>
           <p :class="{'red': predictedHoverTQ2ft > 100}" class="blue">{{ predictedHoverTQ2ft }}</p>
         </div>
         <div>
