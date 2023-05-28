@@ -73,7 +73,7 @@
       </div>
       <div>
         <label for="takeoffGW">Take Off GW: (lbs.)</label>
-        <p class="blue">{{ takeoffGW }}</p>
+        <p :class="{'orange-yellow': takeoffGW > 10500}" class="blue">{{ takeoffGW }}</p>
       </div>
       <div v-if="TOGWErrorMessage" class="error-message">
         <p>{{ TOGWErrorMessage }}</p>
