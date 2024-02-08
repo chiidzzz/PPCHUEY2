@@ -1,6 +1,11 @@
 const app = Vue.createApp({
   data() {
     return {
+      currentTab: "PPC",
+      pressureUnitFrom: 'millibar, hPa',
+      pressureUnitTo: 'inHg',
+      PressureInputValue: null,
+      PressureConvertedValue: '',
       selectedAircraft: "",
       aircraftWeights: {
         L1201: 5682,
@@ -45,8 +50,29 @@ const app = Vue.createApp({
       predictedHoverTQ100ft: null,
     };
   },
-  watch: {},
+  watch: {
+    PressureInputValue: 'convertPressure',
+    pressureUnitFrom: 'updateConversionUnits',
+  },
+
+
   methods: {
+    convertPressure() {
+      if (this.pressureUnitFrom === 'millibar, hPa' && this.pressureUnitTo === 'inHg') {
+        this.PressureConvertedValue = (this.PressureInputValue * 0.02953).toFixed(2) + ' inHg';
+      } else if (this.pressureUnitFrom === 'inHg' && this.pressureUnitTo === 'millibar, hPa') {
+        this.PressureConvertedValue = (this.PressureInputValue / 0.02953).toFixed(2) + ' millibar, hPa';
+      }
+    },
+    updateConversionUnits() {
+      this.pressureUnitTo = this.pressureUnitFrom === 'millibar, hPa' ? 'inHg' : 'millibar, hPa';
+      this.convertPressure();
+    },
+
+    openTab(tabName) {
+      console.log("Switching to tab: ", tabName);
+      this.currentTab = tabName;
+    },
     updateBasicWeight() {
       this.basicWeight = this.aircraftWeights[this.selectedAircraft] || "";
       this.calculateTakeoffGW();
