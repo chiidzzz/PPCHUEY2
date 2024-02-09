@@ -1,11 +1,14 @@
+import { calculateVirX } from "./powerAssurance";
+import { convertPressure, updateConversionUnits } from "./converter.js";
+
 const app = Vue.createApp({
   data() {
     return {
       currentTab: "PPC",
-      pressureUnitFrom: 'millibar, hPa',
-      pressureUnitTo: 'inHg',
+      pressureUnitFrom: "millibar, hPa",
+      pressureUnitTo: "inHg",
       PressureInputValue: null,
-      PressureConvertedValue: '',
+      PressureConvertedValue: "",
       selectedAircraft: "",
       aircraftWeights: {
         L1201: 5682,
@@ -51,22 +54,25 @@ const app = Vue.createApp({
     };
   },
   watch: {
-    PressureInputValue: 'convertPressure',
-    pressureUnitFrom: 'updateConversionUnits',
+    PressureInputValue() {
+      this.convertPressureMethod();
+    },
+    pressureUnitFrom() {
+      this.updateConversionUnitsMethod();
+    },
   },
 
-
   methods: {
-    convertPressure() {
-      if (this.pressureUnitFrom === 'millibar, hPa' && this.pressureUnitTo === 'inHg') {
-        this.PressureConvertedValue = (this.PressureInputValue * 0.02953).toFixed(2) + ' inHg';
-      } else if (this.pressureUnitFrom === 'inHg' && this.pressureUnitTo === 'millibar, hPa') {
-        this.PressureConvertedValue = (this.PressureInputValue / 0.02953).toFixed(2) + ' millibar, hPa';
-      }
+    convertPressureMethod() {
+      this.PressureConvertedValue = convertPressure(
+        this.PressureInputValue,
+        this.pressureUnitFrom,
+        this.pressureUnitTo
+      );
     },
-    updateConversionUnits() {
-      this.pressureUnitTo = this.pressureUnitFrom === 'millibar, hPa' ? 'inHg' : 'millibar, hPa';
-      this.convertPressure();
+    updateConversionUnitsMethod() {
+      this.pressureUnitTo = updateConversionUnits(this.pressureUnitFrom);
+      this.convertPressureMethod();
     },
 
     openTab(tabName) {
