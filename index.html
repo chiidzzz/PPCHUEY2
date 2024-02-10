@@ -175,14 +175,14 @@
       </div>
       <div>
         <label for="PwrAssFAT">FAT: (°C)</label>
-        <input type="number" v-model="PwrAssFAT" @input="validateTemperature(PwrAssFAT)" />
+        <input type="number" v-model="PwrAssFAT" class="pa-input" @input="validateTemperature(PwrAssFAT)" />
       </div>
       <div v-if="TempErrorMessage" class="error-message">
         <p>{{ TempErrorMessage }}</p>
       </div>
       <div>
         <label for="PwrAssIA">Indicated Altitude: (ft.)</label>
-        <input type="number" v-model="PwrAssIA" @input="limitPwrAssIndicatedAltitude()" />
+        <input type="number" v-model="PwrAssIA" class="pa-input" @input="limitPwrAssIndicatedAltitude()" />
       </div>
       <div v-if="PwrAssIAErrorMessage" class="error-message">
         <p>{{ PwrAssIAErrorMessage }}</p>
@@ -193,11 +193,11 @@
       </div>
       <div>
         <label for="mgt">MGT:</label>
-        <input type="number" v-model="mgt" />
+        <input type="number" class="pa-input" v-model="mgt" />
       </div>
       <div>
         <label for="actualTorque">Actual Torque:</label>
-        <input type="number" v-model="pwrAssActualtorque" />
+        <input type="number" class="pa-input" v-model="pwrAssActualtorque" />
       </div>
       <div class="column">
         <div>
