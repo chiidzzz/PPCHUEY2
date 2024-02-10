@@ -1,192 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HUEYII</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="https://unpkg.com/vue@3"></script>
-    <script src="app.js" defer></script>
-  </head>
-  <body>
-    <div id="app">
-      <div class="tab">
-        <button @click="currentTab = 'PPC'" :class="['tab-button', { active: currentTab === 'PPC' }]">PPC</button>
-        <button @click="currentTab = 'PA'" :class="['tab-button', { active: currentTab === 'PA' }]">PA</button>
-        <button @click="currentTab = 'Converter'" :class="['tab-button', { active: currentTab === 'Converter' }]">Converter</button>
-          </div>  
 
-      <div v-show="currentTab === 'PPC'" class="tabcontent">
-        <header>
-          <h2>PPC HUEYII</h2>
-          <h5>Revised May 2023</h5>
-          <h6>(BHT PUB-92-004-10 /REVISION 10 — 21 AUGUST 2017)</h6>
-        </header>
-          <div class="dropdown" @click="toggleDropdown">
-            <button class="dropdown-toggle fire-button">Firefighting</button>
-            <div v-if="showDropdown" class="dropdown-menu">
-              <button @click="setFirefightingLoad(70); toggleDropdown()">
-                70% bucket
-              </button>
-              <button @click="setFirefightingLoad(100); toggleDropdown()">
-                100% bucket
-              </button>
-            </div>
-          </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HUEYII</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="app.js" defer></script>
+</head>
 
-          <div>
-            <label for="aircraftNumber" id="aircraftNumber-label"
-              >Aircraft number:</label
-            >
-            <div class="input-wrapper">
-              <select v-model="selectedAircraft" @change="updateBasicWeight">
-                <option value="">Select</option>
-                <option value="L1201">L1201</option>
-                <option value="L1202">L1202</option>
-                <option value="L1203">L1203</option>
-                <option value="L1204">L1204</option>
-                <option value="L1205">L1205</option>
-                <option value="L1206">L1206</option>
-                <option value="L1207">L1207</option>
-                <option value="L1208">L1208</option>
-                <option value="L1209">L1209</option>
-                <option value="L1210">L1210</option>
-                <option value="L1211">L1211</option>
-                <option value="L1212">L1212</option>
-                <option value="L1214">L1214</option>
-                <option value="L1215">L1215</option>
-                <option value="L1216">L1216</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label for="basicWeight">A/C basic weight: (lbs.)</label>
-            <p class="blue">{{ basicWeight }}</p>
-          </div>
-          <div>
-            <label for="fuel">Fuel: (lbs.)</label>
-            <input type="number" v-model="fuel" @input="validateFuel()" />
-          </div>
-          <div v-if="fuelErrorMessage" class="error-message">
-            <p>{{ fuelErrorMessage }}</p>
-          </div>
-          <div>
-            <label for="load">Load:</label>
-            <input type="number" v-model="load" @input="calculateTakeoffGW()" />
-            <select v-model="loadUnit" @change="calculateTakeoffGW()">
-              <option value="lbs">lbs</option>
-              <option value="kg">kg</option>
-            </select>
-          </div>
-          <div>
-            <label for="takeoffGW">Take Off GW: (lbs.)</label>
-            <p :class="{'orange-yellow': takeoffGW > 10500}" class="blue">
-              {{ takeoffGW }}
-            </p>
-          </div>
-          <div v-if="TOGWErrorMessage" class="error-message">
-            <p>{{ TOGWErrorMessage }}</p>
-          </div>
-          <div>
-            <label for="qnh">QNH:</label>
-            <input
-              type="number"
-              v-model="qnh"
-              @input="limitIndicatedAltitude()"
-            />
-            <select v-model="qnhUnit" @change="limitIndicatedAltitude()">
-              <option value="hPa">hPa</option>
-              <option value="inHg">inHg</option>
-            </select>
-          </div>
-          <div>
-            <label for="fat">FAT: (°C)</label>
-            <input
-              type="number"
-              v-model="fat"
-              @input="validateTemperature(fat)"
-            />
-          </div>
-          <div v-if="TempErrorMessage" class="error-message">
-            <p>{{ TempErrorMessage }}</p>
-          </div>
-          <div>
-            <label for="indicatedAltitude">Indicated Altitude: (ft.)</label>
-            <input
-              type="number"
-              v-model="indicatedAltitude"
-              @input="limitIndicatedAltitude()"
-            />
-          </div>
-          <div v-if="IAErrorMessage" class="error-message">
-            <p>{{ IAErrorMessage }}</p>
-          </div>
-          <div>
-            <label for="pressureAltitude">Pressure Altitude: (ft.)</label>
-            <p class="blue">{{ pressureAltitude }}</p>
-          </div>
-          <div>
-            <label for="densityAltitude">Density Altitude: (ft.)</label>
-            <p class="blue">{{ densityAltitude }}</p>
-          </div>
-          <div class="column">
-            <div>
-              <label for="maxTQ">Max TQ Available (Fig 7-2):</label>
-              <p class="blue">{{ maxTQ }}</p>
-            </div>
-            <div>
-              <label for="predictedHoverTQ2ft"
-                >Predicted hover TQ 2 ft. (Fig 7-3):</label
-              >
-              <p :class="{'red': predictedHoverTQ2ft > 100}" class="blue">
-                {{ predictedHoverTQ2ft }}
-              </p>
-            </div>
-            <div>
-              <label for="predictedHoverTQ4ft"
-                >Predicted hover TQ 4 ft. (Fig 7-3):</label
-              >
-              <p :class="{'red': predictedHoverTQ4ft > 100}" class="blue">
-                {{ predictedHoverTQ4ft }}
-              </p>
-            </div>
-            <div>
-              <label for="predictedHoverTQ30ft"
-                >Predicted hover TQ 30 ft. (Fig 7-3):</label
-              >
-              <p :class="{'red': predictedHoverTQ30ft > 100}" class="blue">
-                {{ predictedHoverTQ30ft }}
-              </p>
-            </div>
-            <div>
-              <label for="predictedHoverTQ100ft"
-                >Predicted hover TQ 100 ft. (Fig 7-3):</label
-              >
-              <p :class="{'red': predictedHoverTQ100ft > 100}" class="blue">
-                {{ predictedHoverTQ100ft }}
-              </p>
-            </div>
-          </div>
-          <div class="reset-button-container">
-            <label>&nbsp;</label>
-            <button @click="resetForm">Reset</button>
-          </div>
-          <div v-show="showFirefightingText" class="firefighting-info">
-            <p>Bambi bucket empty weight: 167 lbs.</p>
-            <p v-if="bucketPercentage === 70">70% Bambi capacity = 2500 lbs.</p>
-            <p v-if="bucketPercentage === 100">
-              100% Bambi capacity = 3500 lbs.
-            </p>
-            <p>Control head weight = 17.6 lbs.</p>
-            <p>Cockpit doors Removed = -2x23 = -46 lbs.</p>
-            <p>Crew of 3 = x200 = 600 lbs.</p>
-          </div>
+<body>
+  <div id="app">
+    <div class="tab">
+      <button @click="currentTab = 'PPC'" :class="['tab-button', { active: currentTab === 'PPC' }]">PPC</button>
+      <button @click="currentTab = 'PA'" :class="['tab-button', { active: currentTab === 'PA' }]">PA</button>
+      <button @click="currentTab = 'Converter'"
+        :class="['tab-button', { active: currentTab === 'Converter' }]">Converter</button>
+    </div>
+
+    <div v-show="currentTab === 'PPC'" class="tabcontent">
+      <header>
+        <h2>PPC HUEYII</h2>
+        <h5>Revised May 2023</h5>
+        <h6>(BHT PUB-92-004-10 /REVISION 10 — 21 AUGUST 2017)</h6>
+      </header>
+      <div class="dropdown" @click="toggleDropdown">
+        <button class="dropdown-toggle fire-button">Firefighting</button>
+        <div v-if="showDropdown" class="dropdown-menu">
+          <button @click="setFirefightingLoad(70); toggleDropdown()">
+            70% bucket
+          </button>
+          <button @click="setFirefightingLoad(100); toggleDropdown()">
+            100% bucket
+          </button>
         </div>
-
-      <div v-show="currentTab === 'PA'" class="tabcontent">
-        <h3>PA</h3>
-        <p>This is PA.</p>
       </div>
+
+      <div>
+        <label for="aircraftNumber" id="aircraftNumber-label">Aircraft number:</label>
+        <div class="input-wrapper">
+          <select v-model="selectedAircraft" @change="updateBasicWeight">
+            <option value="">Select</option>
+            <option value="L1201">L1201</option>
+            <option value="L1202">L1202</option>
+            <option value="L1203">L1203</option>
+            <option value="L1204">L1204</option>
+            <option value="L1205">L1205</option>
+            <option value="L1206">L1206</option>
+            <option value="L1207">L1207</option>
+            <option value="L1208">L1208</option>
+            <option value="L1209">L1209</option>
+            <option value="L1210">L1210</option>
+            <option value="L1211">L1211</option>
+            <option value="L1212">L1212</option>
+            <option value="L1215">L1215</option>
+            <option value="L1216">L1216</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label for="basicWeight">A/C basic weight: (lbs.)</label>
+        <p class="blue">{{ basicWeight }}</p>
+      </div>
+      <div>
+        <label for="fuel">Fuel: (lbs.)</label>
+        <input type="number" v-model="fuel" @input="validateFuel()" />
+      </div>
+      <div v-if="fuelErrorMessage" class="error-message">
+        <p>{{ fuelErrorMessage }}</p>
+      </div>
+      <div>
+        <label for="load">Load:</label>
+        <input type="number" v-model="load" @input="calculateTakeoffGW()" />
+        <select v-model="loadUnit" @change="calculateTakeoffGW()">
+          <option value="lbs">lbs</option>
+          <option value="kg">kg</option>
+        </select>
+      </div>
+      <div>
+        <label for="takeoffGW">Take Off GW: (lbs.)</label>
+        <p :class="{'orange-yellow': takeoffGW > 10500}" class="blue">
+          {{ takeoffGW }}
+        </p>
+      </div>
+      <div v-if="TOGWErrorMessage" class="error-message">
+        <p>{{ TOGWErrorMessage }}</p>
+      </div>
+      <div>
+        <label for="qnh">QNH:</label>
+        <input type="number" v-model="qnh" @input="limitIndicatedAltitude()" />
+        <select v-model="qnhUnit" @change="limitIndicatedAltitude()">
+          <option value="hPa">hPa</option>
+          <option value="inHg">inHg</option>
+        </select>
+      </div>
+      <div>
+        <label for="fat">FAT: (°C)</label>
+        <input type="number" v-model="fat" @input="validateTemperature(fat)" />
+      </div>
+      <div v-if="TempErrorMessage" class="error-message">
+        <p>{{ TempErrorMessage }}</p>
+      </div>
+      <div>
+        <label for="indicatedAltitude">Indicated Altitude: (ft.)</label>
+        <input type="number" v-model="indicatedAltitude" @input="limitIndicatedAltitude()" />
+      </div>
+      <div v-if="IAErrorMessage" class="error-message">
+        <p>{{ IAErrorMessage }}</p>
+      </div>
+      <div>
+        <label for="pressureAltitude">Pressure Altitude: (ft.)</label>
+        <p class="blue">{{ pressureAltitude }}</p>
+      </div>
+      <div>
+        <label for="densityAltitude">Density Altitude: (ft.)</label>
+        <p class="blue">{{ densityAltitude }}</p>
+      </div>
+      <div class="column">
+        <div>
+          <label for="maxTQ">Max TQ Available (Fig 7-2):</label>
+          <p class="blue">{{ maxTQ }}</p>
+        </div>
+        <div>
+          <label for="predictedHoverTQ2ft">Predicted hover TQ 2 ft. (Fig 7-3):</label>
+          <p :class="{'red': predictedHoverTQ2ft > 100}" class="blue">
+            {{ predictedHoverTQ2ft }}
+          </p>
+        </div>
+        <div>
+          <label for="predictedHoverTQ4ft">Predicted hover TQ 4 ft. (Fig 7-3):</label>
+          <p :class="{'red': predictedHoverTQ4ft > 100}" class="blue">
+            {{ predictedHoverTQ4ft }}
+          </p>
+        </div>
+        <div>
+          <label for="predictedHoverTQ30ft">Predicted hover TQ 30 ft. (Fig 7-3):</label>
+          <p :class="{'red': predictedHoverTQ30ft > 100}" class="blue">
+            {{ predictedHoverTQ30ft }}
+          </p>
+        </div>
+        <div>
+          <label for="predictedHoverTQ100ft">Predicted hover TQ 100 ft. (Fig 7-3):</label>
+          <p :class="{'red': predictedHoverTQ100ft > 100}" class="blue">
+            {{ predictedHoverTQ100ft }}
+          </p>
+        </div>
+      </div>
+      <div class="reset-button-container">
+        <label>&nbsp;</label>
+        <button @click="resetForm">Reset</button>
+      </div>
+      <div v-show="showFirefightingText" class="firefighting-info">
+        <p>Bambi bucket empty weight: 167 lbs.</p>
+        <p v-if="bucketPercentage === 70">70% Bambi capacity = 2500 lbs.</p>
+        <p v-if="bucketPercentage === 100">
+          100% Bambi capacity = 3500 lbs.
+        </p>
+        <p>Control head weight = 17.6 lbs.</p>
+        <p>Cockpit doors Removed = -2x23 = -46 lbs.</p>
+        <p>Crew of 3 = x200 = 600 lbs.</p>
+      </div>
+    </div>
+
+    <div v-show="currentTab === 'PA'" class="tabcontent">
+      <h3>Power Assurance</h3>
+      <div>
+        <label for="qnh">QNH:</label>
+        <input type="number" v-model="qnh" @input="limitPwrAssIndicatedAltitude()" />
+        <select v-model="qnhUnit" @change="limitPwrAssIndicatedAltitude()">
+          <option value="hPa">hPa</option>
+          <option value="inHg">inHg</option>
+        </select>
+      </div>
+      <div>
+        <label for="PwrAssFAT">FAT: (°C)</label>
+        <input type="number" v-model="PwrAssFAT" @input="validateTemperature(PwrAssFAT)" />
+      </div>
+      <div v-if="TempErrorMessage" class="error-message">
+        <p>{{ TempErrorMessage }}</p>
+      </div>
+      <div>
+        <label for="PwrAssIA">Indicated Altitude: (ft.)</label>
+        <input type="number" v-model="PwrAssIA" @input="limitPwrAssIndicatedAltitude()" />
+      </div>
+      <div v-if="PwrAssIAErrorMessage" class="error-message">
+        <p>{{ PwrAssIAErrorMessage }}</p>
+      </div>
+      <div>
+        <label for="PwrAssPressureAltitude">Pressure Altitude: (ft.)</label>
+        <p class="blue">{{ PwrAssPressureAltitude }}</p>
+      </div>
+      <div>
+        <label for="mgt">MGT:</label>
+        <input type="number" v-model="mgt" />
+      </div>
+      <div>
+        <label for="actualTorque">Actual Torque:</label>
+        <input type="number" v-model="pwrAssActualtorque" />
+      </div>
+      <div class="column">
+        <div>
+          <label for="mrt">Minimum Required Torque:</label>
+          <p class="blue">{{ resultMRT }}</p>
+        </div>
+        <div>
+          <label for="pwrAssDiff">Difference:</label>
+          <p class="blue">{{ pwrAssDiff }}</p>
+          <p v-if="pwrAssWarningMessage" class="error-message">{{ pwrAssWarningMessage }}</p>
+        </div>
+      </div>
+    </div>
 
     <div class="tab-content" v-show="currentTab === 'Converter'">
       <div class="unit-converter">
@@ -210,23 +234,13 @@
         </div>
       </div>
     </div>
-
-        <!-- <h2>Weight Unit Converter</h2>
-        <div class="conversion-row">
-            <label>From:</label>
-            <select v-model="weightUnitFrom">
-                <option value="kg">Kg</option>
-                <option value="lbs">lbs</option>
-            </select>
-            <label>To:</label>
-            <input type="text" :value="convertedWeightValue" readonly>
-        </div> -->
-    </div>
-</div>
+  </div>
+  </div>
 
 
 
 
-    </div>
-  </body>
+  </div>
+</body>
+
 </html>

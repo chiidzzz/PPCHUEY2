@@ -2,10 +2,20 @@ const app = Vue.createApp({
   data() {
     return {
       currentTab: "PPC",
-      pressureUnitFrom: 'millibar, hPa',
-      pressureUnitTo: 'inHg',
+      pressureUnitFrom: "millibar, hPa",
+      pressureUnitTo: "inHg",
       PressureInputValue: null,
-      PressureConvertedValue: '',
+      PressureConvertedValue: "",
+      mgt: "",
+      pwrAssActualtorque: "",
+      pwrAssDiff: "",
+      resultMRT: "",
+      PwrAssFAT: 20,
+      PwrAssIA: "",
+      PwrAssIAErrorMessage: "",
+      PwrAssPressureAltitude: null,
+      PwrAssMGTErrorMessage: "",
+      pwrAssWarningMessage: "",
       selectedAircraft: "",
       aircraftWeights: {
         L1201: 5682,
@@ -20,7 +30,6 @@ const app = Vue.createApp({
         L1210: 5764,
         L1211: 5691,
         L1212: 5738,
-        L1214: 5748,
         L1215: 5740,
         L1216: 5756,
       },
@@ -51,28 +60,47 @@ const app = Vue.createApp({
     };
   },
   watch: {
-    PressureInputValue: 'convertPressure',
-    pressureUnitFrom: 'updateConversionUnits',
+    //converter
+    PressureInputValue: "convertPressure",
+    pressureUnitFrom: "updateConversionUnits",
+    mgt(newVal, oldVal) {
+      this.computeMRT();
+    },
+    pwrAssActualtorque(newVal, oldVal) {
+      this.calculateDiff();
+    },
   },
 
-
   methods: {
+    //converter
     convertPressure() {
-      if (this.pressureUnitFrom === 'millibar, hPa' && this.pressureUnitTo === 'inHg') {
-        this.PressureConvertedValue = (this.PressureInputValue * 0.02953).toFixed(2) + ' inHg';
-      } else if (this.pressureUnitFrom === 'inHg' && this.pressureUnitTo === 'millibar, hPa') {
-        this.PressureConvertedValue = (this.PressureInputValue / 0.02953).toFixed(2) + ' millibar, hPa';
+      if (
+        this.pressureUnitFrom === "millibar, hPa" &&
+        this.pressureUnitTo === "inHg"
+      ) {
+        this.PressureConvertedValue =
+          (this.PressureInputValue * 0.02953).toFixed(2) + " inHg";
+      } else if (
+        this.pressureUnitFrom === "inHg" &&
+        this.pressureUnitTo === "millibar, hPa"
+      ) {
+        this.PressureConvertedValue =
+          (this.PressureInputValue / 0.02953).toFixed(2) + " millibar, hPa";
       }
     },
     updateConversionUnits() {
-      this.pressureUnitTo = this.pressureUnitFrom === 'millibar, hPa' ? 'inHg' : 'millibar, hPa';
+      this.pressureUnitTo =
+        this.pressureUnitFrom === "millibar, hPa" ? "inHg" : "millibar, hPa";
       this.convertPressure();
     },
 
+    //general
     openTab(tabName) {
       console.log("Switching to tab: ", tabName);
       this.currentTab = tabName;
     },
+
+    //ppc
     updateBasicWeight() {
       this.basicWeight = this.aircraftWeights[this.selectedAircraft] || "";
       this.calculateTakeoffGW();
@@ -551,6 +579,298 @@ const app = Vue.createApp({
       this.showFirefightingText = true;
       this.showDropdown = false;
       this.bucketPercentage = bucketPercentage;
+    },
+
+    //power assurance
+    limitPwrAssIndicatedAltitude(event) {
+      const indicatedAltitude = parseFloat(this.PwrAssIA);
+      if (
+        isNaN(indicatedAltitude) ||
+        indicatedAltitude < 0 ||
+        indicatedAltitude > 10000
+      ) {
+        this.PwrAssIAErrorMessage =
+          "Check Indicated Altitude between 0 and 10000 ft.";
+        this.resultMRT = 0;
+        this.pwrAssDiff = 0;
+      } else {
+        this.calculatePwrAssPressureAltitude();
+        this.calculatePwrAssVirX();
+        this.PwrAssIAErrorMessage = "";
+      }
+    },
+    calculatePwrAssPressureAltitude() {
+      const indicatedAltitudeValue = parseFloat(this.PwrAssIA);
+      const qnhValue = parseFloat(this.qnh);
+      const qnhFactor = this.qnhUnit === "inHg" ? 1 : 33.8639;
+      const pressureAltitude =
+        indicatedAltitudeValue + (29.92 - qnhValue / qnhFactor) * 1000;
+      this.PwrAssPressureAltitude = isNaN(pressureAltitude)
+        ? 0
+        : pressureAltitude.toFixed(0);
+    },
+    limitMGT(event) {
+      const mgt = parseFloat(this.mgt);
+      if (isNaN(mgt) || mgt < 400 || 880 > 880) {
+        this.PwrAssMGTErrorMessage = "Check MGT Altitude between 400 and 880.";
+        this.resultMRT = 0;
+        this.pwrAssDiff = 0;
+      } else {
+        this.calculatePwrAssPressureAltitude();
+        this.calculatePwrAssVirX();
+        this.PwrAssMGTErrorMessage = "";
+      }
+    },
+    computeMRT() {
+      this.resultMRT = parseFloat(this.calculateMRT().toFixed(1));
+      this.calculateDiff();
+    },
+    calculateDiff() {
+      if (this.pwrAssActualtorque) {
+        // Check if there's an actual torque value
+        const diff = parseFloat(this.pwrAssActualtorque) - this.resultMRT;
+        this.pwrAssDiff = parseFloat(diff.toFixed(1));
+        // Set the warning message if the difference is negative
+        this.pwrAssWarningMessage =
+          this.pwrAssDiff < 0
+            ? "The difference is negative. Shut down the aircraft."
+            : "";
+      } else {
+        // Reset the warning message if there's no actual torque value
+        this.pwrAssWarningMessage = "";
+      }
+    },
+    PwrAssFATminus10() {
+      const B6 = parseFloat(this.mgt);
+      return (
+        -0.000002176 * Math.pow(B6, 3) +
+        0.004704132 * Math.pow(B6, 2) -
+        2.942152186 * B6 +
+        531.135914195
+      );
+    },
+    PwrAssFAT0() {
+      const B9 = parseFloat(this.mgt);
+      return (
+        -0.000004342 * Math.pow(B9, 3) +
+        0.009725196 * Math.pow(B9, 2) -
+        6.815988615 * B9 +
+        1513.83290876
+      );
+    },
+    PwrAssFAT10() {
+      const B9 = parseFloat(this.mgt);
+      return (
+        -0.000004342 * Math.pow(B9, 3) +
+        0.009725196 * Math.pow(B9, 2) -
+        6.815988615 * B9 +
+        1513.83290876
+      );
+    },
+    PwrAssFAT15() {
+      const B12 = parseFloat(this.mgt);
+      return (
+        -0.000003449 * Math.pow(B12, 3) +
+        0.007848524 * Math.pow(B12, 2) -
+        5.516750478 * B12 +
+        1212.264525819
+      );
+    },
+    PwrAssFAT20() {
+      const B15 = parseFloat(this.mgt);
+      return (
+        -0.000001284 * Math.pow(B15, 3) +
+        0.002978302 * Math.pow(B15, 2) -
+        1.887290123 * B15 +
+        310.539950484
+      );
+    },
+    PwrAssFAT25() {
+      const B18 = parseFloat(this.mgt);
+      return (
+        -0.000004668 * Math.pow(B18, 3) +
+        0.010934662 * Math.pow(B18, 2) -
+        8.10533222 * B18 +
+        1920.086763982
+      );
+    },
+    PwrAssFAT30() {
+      const B21 = parseFloat(this.mgt);
+      return (
+        -0.000003648 * Math.pow(B21, 3) +
+        0.008790669 * Math.pow(B21, 2) -
+        6.642401446 * B21 +
+        1593.317837745
+      );
+    },
+    PwrAssFAT35() {
+      const B24 = parseFloat(this.mgt);
+      return (
+        -0.000007062 * Math.pow(B24, 3) +
+        0.016841555 * Math.pow(B24, 2) -
+        12.964059332 * B24 +
+        3240.446679491
+      );
+    },
+    PwrAssFAT40() {
+      const B27 = parseFloat(this.mgt);
+      return (
+        -0.000004601 * Math.pow(B27, 3) +
+        0.011281935 * Math.pow(B27, 2) -
+        8.813101951 * B27 +
+        2211.320364814
+      );
+    },
+    PwrAssFAT45() {
+      const B30 = parseFloat(this.mgt);
+      return (
+        -0.00000387 * Math.pow(B30, 3) +
+        0.009691694 * Math.pow(B30, 2) -
+        7.69374242 * B30 +
+        1953.136257021
+      );
+    },
+    PwrAssFAT50() {
+      const B33 = parseFloat(this.mgt);
+      return (
+        -0.00000523 * Math.pow(B33, 3) +
+        0.013030312 * Math.pow(B33, 2) -
+        10.438476141 * B33 +
+        2702.77433028
+      );
+    },
+
+    calculatePwrAssVirX() {
+      const B38 = parseFloat(this.PwrAssFAT);
+      const D3 = this.PwrAssFATminus10();
+      const D6 = this.PwrAssFAT0();
+      const D9 = this.PwrAssFAT10();
+      const D12 = this.PwrAssFAT15();
+      const D15 = this.PwrAssFAT20();
+      const D18 = this.PwrAssFAT25();
+      const D21 = this.PwrAssFAT30();
+      const D24 = this.PwrAssFAT35();
+      const D27 = this.PwrAssFAT40();
+      const D30 = this.PwrAssFAT45();
+      const D33 = this.PwrAssFAT50();
+      // console.log("B38:", B38);
+      // console.log("D3:", D3);
+      // console.log("D6:", D6);
+      // console.log("D9:", D9);
+      // console.log("D12:", D12);
+      // console.log("D15:", D15);
+      // console.log("D18:", D18);
+      // console.log("D21:", D21);
+      // console.log("D24:", D24);
+      // console.log("D27:", D27);
+      // console.log("D30:", D30);
+      // console.log("D33:", D33);
+
+      if (B38 >= -10 && B38 < 0) {
+        return D3 + (D6 - D3) * ((B38 + 10) / 10);
+      } else if (B38 >= 0 && B38 < 10) {
+        return D6 + (D9 - D6) * (B38 / 10);
+      } else if (B38 >= 10 && B38 < 15) {
+        return D9 + (D12 - D9) * ((B38 - 10) / 5);
+      } else if (B38 >= 15 && B38 < 20) {
+        return D12 + (D15 - D12) * ((B38 - 15) / 5);
+      } else if (B38 >= 20 && B38 < 25) {
+        return D15 + (D18 - D15) * ((B38 - 20) / 5);
+      } else if (B38 >= 25 && B38 < 30) {
+        return D18 + (D21 - D18) * ((B38 - 25) / 5);
+      } else if (B38 >= 30 && B38 < 35) {
+        return D21 + (D24 - D21) * ((B38 - 30) / 5);
+      } else if (B38 >= 35 && B38 < 40) {
+        return D24 + (D27 - D24) * ((B38 - 35) / 5);
+      } else if (B38 >= 40 && B38 < 45) {
+        return D27 + (D30 - D27) * ((B38 - 40) / 5);
+      } else if (B38 >= 45 && B38 < 50) {
+        return D30 + (D33 - D30) * ((B38 - 45) / 5);
+      } else {
+        return null;
+      }
+    },
+    PressAltPwrAss0() {
+      const H3 = this.calculatePwrAssVirX();
+      return 1.0459 * H3 + 41.368;
+    },
+    PressAltPwrAss1000() {
+      const H6 = this.calculatePwrAssVirX();
+      return 0.9524 * H6 + 39.04;
+    },
+    PressAltPwrAss2000() {
+      const H9 = this.calculatePwrAssVirX();
+      return 0.9132 * H9 + 38.261;
+    },
+    PressAltPwrAss3000() {
+      const H12 = this.calculatePwrAssVirX();
+      return 0.9013 * H12 + 35.954;
+    },
+    PressAltPwrAss4000() {
+      const H15 = this.calculatePwrAssVirX();
+      return 0.8669 * H15 + 34.395;
+    },
+    PressAltPwrAss5000() {
+      const H18 = this.calculatePwrAssVirX();
+      return 0.8173 * H18 + 33.637;
+    },
+    PressAltPwrAss6000() {
+      const H21 = this.calculatePwrAssVirX();
+      return 0.8 * H21 + 32;
+    },
+    PressAltPwrAss7000() {
+      const H24 = this.calculatePwrAssVirX();
+      return 0.7686 * H24 + 30.841;
+    },
+    PressAltPwrAss8000() {
+      const H27 = this.calculatePwrAssVirX();
+      return 0.74 * H27 + 29.705;
+    },
+    PressAltPwrAss9000() {
+      const H30 = this.calculatePwrAssVirX();
+      return 0.7143 * H30 + 28.571;
+    },
+    PressAltPwrAss10000() {
+      const H33 = this.calculatePwrAssVirX();
+      return 0.6813 * H33 + 27.738;
+    },
+    calculateMRT() {
+      const A38 = parseFloat(this.PwrAssPressureAltitude);
+      const J3 = this.PressAltPwrAss0();
+      const J6 = this.PressAltPwrAss1000();
+      const J9 = this.PressAltPwrAss2000();
+      const J12 = this.PressAltPwrAss3000();
+      const J15 = this.PressAltPwrAss4000();
+      const J18 = this.PressAltPwrAss5000();
+      const J21 = this.PressAltPwrAss6000();
+      const J24 = this.PressAltPwrAss7000();
+      const J27 = this.PressAltPwrAss8000();
+      const J30 = this.PressAltPwrAss9000();
+      const J33 = this.PressAltPwrAss10000();
+
+      if (A38 >= 0 && A38 < 1000) {
+        return J3 + (J6 - J3) * (A38 / 1000);
+      } else if (A38 >= 1000 && A38 < 2000) {
+        return J6 + (J9 - J6) * ((A38 - 1000) / 1000);
+      } else if (A38 >= 2000 && A38 < 3000) {
+        return J9 + (J12 - J9) * ((A38 - 2000) / 1000);
+      } else if (A38 >= 3000 && A38 < 4000) {
+        return J12 + (J15 - J12) * ((A38 - 3000) / 1000);
+      } else if (A38 >= 4000 && A38 < 5000) {
+        return J15 + (J18 - J15) * ((A38 - 4000) / 1000);
+      } else if (A38 >= 5000 && A38 < 6000) {
+        return J18 + (J21 - J18) * ((A38 - 5000) / 1000);
+      } else if (A38 >= 6000 && A38 < 7000) {
+        return J21 + (J24 - J21) * ((A38 - 6000) / 1000);
+      } else if (A38 >= 7000 && A38 < 8000) {
+        return J24 + (J27 - J24) * ((A38 - 7000) / 1000);
+      } else if (A38 >= 8000 && A38 < 9000) {
+        return J27 + (J30 - J27) * ((A38 - 8000) / 1000);
+      } else if (A38 >= 9000 && A38 <= 10000) {
+        return J30 + (J33 - J30) * ((A38 - 9000) / 1000);
+      } else {
+        return null;
+      }
     },
   },
   computed: {},
